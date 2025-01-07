@@ -1,3 +1,6 @@
+# Enable strict mode for better error handling
+Set-StrictMode -Version Latest
+
 # Define the base path where folders will be created
 $basePath = "C:\Users\JuanCarlosHerranzRam\Ithaka Investments Europe\Datos - 8.- Otras\5. Internal\GASTOS\JCH"
 
@@ -11,24 +14,29 @@ $years = 2024..2026
 
 # Create folders for each year
 foreach ($year in $years) {
-    # Create year folder
-    $yearPath = Join-Path -Path $basePath -ChildPath $year.ToString()
-    if (-not (Test-Path -Path $yearPath)) {
-        New-Item -Path $yearPath -ItemType Directory
-        Write-Host "Created folder: $yearPath"
-    }
-    
-    # Create month folders
-    for ($month = 1; $month -le 12; $month++) {
-        # Format month number with leading zero
-        $monthStr = $month.ToString("00")
-        
-        # Create month folder with format YYYY_MM
-        $monthPath = Join-Path -Path $yearPath -ChildPath ("{0}_{1}" -f $year, $monthStr)
-        if (-not (Test-Path -Path $monthPath)) {
-            New-Item -Path $monthPath -ItemType Directory
-            Write-Host "Created folder: $monthPath"
+    Try {
+        # Create year folder
+        $yearPath = Join-Path -Path $basePath -ChildPath $year.ToString()
+        if (-not (Test-Path -Path $yearPath)) {
+            New-Item -Path $yearPath -ItemType Directory
+            Write-Verbose "Created folder: $yearPath"
         }
+
+        # Create month folders
+        for ($month = 1; $month -le 12; $month++) {
+            # Format month number with leading zero
+            $monthStr = $month.ToString("00")
+
+            # Create month folder with format YYYY_MM
+            $monthPath = Join-Path -Path $yearPath -ChildPath ("{0}_{1}" -f $year, $monthStr)
+            if (-not (Test-Path -Path $monthPath)) {
+                New-Item -Path $monthPath -ItemType Directory
+                Write-Verbose "Created folder: $monthPath"
+            }
+        }
+    }
+    Catch {
+        Write-Error "Failed to create folder for year $year: $_"
     }
 }
 
